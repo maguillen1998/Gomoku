@@ -55,7 +55,7 @@ class Gomoku():
 
         ##########
         self.board = BM.Board()
-        self.board.printBoard()
+        #self.board.printBoard()
 
     ##########
 
@@ -64,7 +64,7 @@ class Gomoku():
         self.menubar = Menu(self.root)
         self.subMenu = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label='New Game', menu=self.subMenu)
-        self.subMenu.add_command(label="Play First", command=lambda: self.initBoard('player', 'computer'))
+        self.subMenu.add_command(label="Play First", command=lambda: self.initBoard('player','computer'))
         self.subMenu.add_command(label="Play Second", command=lambda: self.initBoard('computer', 'player'))
         self.subMenu.add_separator()
         self.subMenu.add_command(label="Exit", command=self.root.quit)
@@ -83,11 +83,11 @@ class Gomoku():
         self.init_board_canvas()
 
         if self.player_one == "player":
-            self.canvas.bind("<Button-1>", self.gameLoop)
+            self.canvas.bind("<Button-1>", self.gameLoop) #probably why any click passes the turn.
+            #try mapping the place tile functions instead of click
 
         elif self.player_one == "computer":
             self.gameLoop2()
-
     ### プレイヤーの設定: {player|computer : BLACK|WHITE}
     def setPlayer(self, p1, p2):
         self.player_one = p1
@@ -240,14 +240,17 @@ class Gomoku():
         ### 0 means empty
         ### Returns True if there is 0
         return any(0 in x for x in self.board_points)
+    #def gameLoopCheck:
 
     ### Player1 = self, Player2 = computer
     def gameLoop(self, event):
         ### プレーヤーのどちらかが勝つまで
-
+        #print(event.x, event.y)#event == mouseClick Coords
         self.turn = 1
 
         ### Place stone #############################
+        '''check all spaces on board, if mouse coordinates are close enough,
+        place on space'''
         for i in range(ROWS):
             for j in range(COLS):
                 pixel_x = (i + 1) * 40
@@ -266,7 +269,7 @@ class Gomoku():
                     # print(i,j)
 
                     self.board.placeEnemy(i, j)
-                    self.board.printBoard()
+                    #self.board.printBoard()
                     break
 
             else:
@@ -297,12 +300,12 @@ class Gomoku():
 
 
         else:
-            row, col = self.board.bestMove()
+            row, col = self.board.newBestMove()
             self.board_points[row][col] = 2
             self.draw_stone(row, col)
             self.board.placeSelf(row, col)
         ##########################################
-        self.board.printBoard()
+        #self.board.printBoard()
 
         ### Every time after one move, check the board
         self.result = self.check_result()
@@ -339,7 +342,7 @@ class Gomoku():
     def gameLoop2(self, *args):
         while True:
             ### AI first
-            self.turn = 2
+            self.turn = 2 #1=black, 2=white
 
             if self.white_turn == 0:
                 self.firstmove()
@@ -369,6 +372,7 @@ class Gomoku():
             self.turn = 1
 
             ### Place stone #############################
+            #calculates distance from click to spaces. if close enough, a stone is placed
             for i in range(ROWS):
                 for j in range(COLS):
                     pixel_x = (i + 1) * 40

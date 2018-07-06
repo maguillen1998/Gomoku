@@ -4,7 +4,8 @@ import random
 class FirstLevelNode:
     def __init__(self,data=1, row=0, column=0):
         self.connections = []
-        self.data = data
+        self.AIData = data
+        self.enemyData = 1
         self.row = row
         self.column = column
 
@@ -17,42 +18,63 @@ class SecondLevelNode:
     # def __generateFromCoords(self, winningSet):
     #     for coordinate in winningSet:
     #             self.connections.append(#board[row][column].node)
-    def getScore(self):
+    def getAIScore(self):
         output = 1
         numInARow = 0
         for firstLevelNode in self.connections:
-            if firstLevelNode.data == 1.2:
+            if firstLevelNode.AIData == 1.2:
                 numInARow += 1
-            output *= firstLevelNode.data
+            output *= firstLevelNode.AIData
         if numInARow == 4:
             return 10000
+        # if numInARow == 0:
+        #     return output
         return output * numInARow
 
+    def getEnemyScore(self):
+        output = 1
+        numInARow = 0
+        for firstLevelNode in self.connections:
+            if firstLevelNode.enemyData == 1.2:
+                numInARow += 1
+            output *= firstLevelNode.enemyData
+        if numInARow == 4:
+            return 10000
+        # if numInARow == 0:
+        #     return output
+        return output * numInARow
 
 class ThirdLevelNode:
     def __init__(self, connections):
         self.connections = connections
-    def getScore(self):
+    def getAIScore(self):
         output = 0
         for secondLevelNode in self.connections:
-            output += secondLevelNode.getScore()
+            output += secondLevelNode.getAIScore()
         return output
-
+    def getEnemyScore(self):
+        output = 0
+        for secondLevelNode in self.connections:
+            output += secondLevelNode.getEnemyScore()
+        return output
     def connect(self, secondLevelNode):
         self.connections.append(secondLevelNode)
 
 
 class Space:
     def updateScore(self):
-        self.score = self.network.getScore()
+        self.AIscore = self.network.getAIScore()
+        self.enemyScore = self.network.getEnemyScore()
+        self.totalScore = self.AIscore + self.enemyScore
     def __init__(self, condition = 'e', row=0, column=0):
         self.row = row
         self.column = column
         self.condition = condition
         self.network = ThirdLevelNode([])
         self.node = FirstLevelNode(row = row, column = column)
-        self.score = 0
-
+        self.AIscore = 0
+        self.enemyScore = 0
+        self.totalScore = 0
 
 class Board:
     def __calculateWinningSetList(self):
@@ -100,9 +122,7 @@ class Board:
         #         list.append(secondLevelNode)
             # take each coordinate in a winning set and add the node containing that
             # index to the network of the space at that index
-        for row in self.matrix:
-            for space in row:
-                space.updateScore()
+        self.updateAllScores()
 
     def __init__(self):
         #e=empty, b=black, w=white
@@ -119,11 +139,11 @@ class Board:
         print()
         for row in self.matrix:
             for space in row:
-                score = space.score
+                score = space.totalScore
                 if score < 10:
-                    print(space.score, end='  ')
+                    print(score, end='  ')
                 else:
-                    print(space.score, end=' ')
+                    print(score, end=' ')
             print()
         print()
 
@@ -140,16 +160,18 @@ class Board:
 
 
     def placeEnemy(self,row,column):
-        self.matrix[row][column].condition = 'b'
-        self.matrix[row][column].node.data = 0
-        for row in self.matrix:
-            for space in row:
-                space.updateScore()
+        space = self.matrix[row][column]
+        space.condition = 'b'
+        space.node.AIData = 0
+        space.node.enemyData = 1.2
+
+        self.updateAllScores()
 
     def placeSelf(self,row,column):
         space = self.matrix[row][column]
         space.condition = 'w'
-        space.node.data = 1.2
+        space.node.AIData = 1.2
+        space.node.enemyData = 0
         self.updateAllScores()
     def updateAllScores(self):
         for row in self.matrix:
@@ -158,20 +180,39 @@ class Board:
     def bestMove(self):
         #trying to use already used spaces as bestMove
         #self.updateAllScores()
-        maxConditionList = []
+       # maxConditionList = []
         max = Space(row = -1, column= -1)
         for row in self.matrix:
             for space in row:
-                if space.score > max.score and space.condition == 'e':
+                if space.AIscore > max.AIscore and space.condition == 'e':
                     max = space
         maxList = []
         maxList.append(max)
         for row in self.matrix:
             for space in row:
-                if space.score == max.score and space.condition == 'e':
+                if space.AIscore == max.AIscore and space.condition == 'e':
                     maxList.append(space)
         max = maxList[random.randint(0,maxList.__len__()-1)]
         #workaround
+        return max.column, max.row
+
+    def newBestMove(self):
+        # trying to use already used spaces as bestMove
+        # self.updateAllScores()
+        # maxConditionList = []
+        max = Space(row=-1, column=-1)
+        for row in self.matrix:
+            for space in row:
+                if space.totalScore > max.totalScore and space.condition == 'e':
+                    max = space
+        maxList = []
+        maxList.append(max)
+        for row in self.matrix:
+            for space in row:
+                if space.totalScore == max.totalScore and space.condition == 'e':
+                    maxList.append(space)
+        max = maxList[random.randint(0, maxList.__len__() - 1)]
+        # workaround
         return max.column, max.row
 
     def boardInfo(self):
@@ -200,3 +241,11 @@ for i in range(5):
     gameBoard.printBoard()
 print(whiteMoveList)
 print ('black:', gameBoard.boardInfo()[0].__len__(), "white:" ,gameBoard.boardInfo()[1].__len__(), "empty:",gameBoard.boardInfo()[2].__len__())
+
+'''so we still need to: 
+add in opponent score calculation, 
+fix play second, 
+fix turn passing after a click even if no piece is placed, account for open n vs closed n,
+figurw out defense plays using playerScore vs AI score'''
+
+'''change each member from self.score to self.aiScore and self.opponetScore representing the scores for each accordingly.'''
