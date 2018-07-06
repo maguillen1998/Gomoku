@@ -54,7 +54,7 @@ class SecondLevelNode:
         # elif numInARowCount == 3:
         #     return numInARowCount * output
         if numInARowCount == 4:
-            return 100000
+            return 10000
         # if numInARow == 0:
         #     return output
         return output * numInARowCount
