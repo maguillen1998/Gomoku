@@ -20,29 +20,44 @@ class SecondLevelNode:
     #             self.connections.append(#board[row][column].node)
     def getAIScore(self):
         output = 1
-        numInARow = 0
+        numInARow = []
+        numInARowCount = 0
         for firstLevelNode in self.connections:
             if firstLevelNode.AIData == 1.2:
-                numInARow += 1
+                numInARowCount += 1
+            numInARow.append(firstLevelNode)
             output *= firstLevelNode.AIData
-        if numInARow == 4:
-            return 10000
+
+        if numInARowCount == 3 and numInARow[0].AIData == 1 and numInARow[4].AIData == 1:
+            return 5000
+        # elif numInARowCount == 3:
+        #     return numInARowCount * output
+        if numInARowCount == 4:
+            return 100000
         # if numInARow == 0:
         #     return output
-        return output * numInARow
+        return output * numInARowCount
 
     def getEnemyScore(self):
         output = 1
-        numInARow = 0
+        numInARow = []
+        numInARowCount = 0
         for firstLevelNode in self.connections:
             if firstLevelNode.enemyData == 1.2:
-                numInARow += 1
+                numInARowCount += 1
+            numInARow.append(firstLevelNode)
             output *= firstLevelNode.enemyData
-        if numInARow == 4:
-            return 10000
+
+
+        if numInARowCount == 3 and numInARow[0].enemyData == 1 and numInARow[4].enemyData == 1:
+            return 8000
+        # elif numInARowCount == 3:
+        #     return numInARowCount * output
+        if numInARowCount == 4:
+            return 100000
         # if numInARow == 0:
         #     return output
-        return output * numInARow
+        return output * numInARowCount
 
 class ThirdLevelNode:
     def __init__(self, connections):
