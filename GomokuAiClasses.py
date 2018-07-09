@@ -32,7 +32,8 @@ class SecondLevelNode:
             return 5000
         # elif numInARowCount == 3:
         #     return numInARowCount * output
-        if numInARowCount == 4:
+        #output check hopefully accounts for rows of 4 with an enemy stone in the way
+        if numInARowCount == 4 and output != 0:
             return 100000
         # if numInARow == 0:
         #     return output
@@ -53,8 +54,8 @@ class SecondLevelNode:
             return 8000
         # elif numInARowCount == 3:
         #     return numInARowCount * output
-        if numInARowCount == 4:
-            return 10000
+        if numInARowCount == 4 and output != 0:
+            return 100000
         # if numInARow == 0:
         #     return output
         return output * numInARowCount
@@ -244,18 +245,18 @@ class Board:
                     empty.append(space)
         info = [black, white, empty]
         return info
-gameBoard = Board()
-gameBoard.printBoard()
-whiteMoveList = []
-for i in range(5):
-    row, col = gameBoard.bestMove()
-    whiteMoveList.append([row, col])
-    gameBoard.placeSelf(row, col)
-   # gameBoard.placeEnemy(i,i)
-
-    gameBoard.printBoard()
-print(whiteMoveList)
-print ('black:', gameBoard.boardInfo()[0].__len__(), "white:" ,gameBoard.boardInfo()[1].__len__(), "empty:",gameBoard.boardInfo()[2].__len__())
+# gameBoard = Board()
+# gameBoard.printBoard()
+# whiteMoveList = []
+# for i in range(5):
+#     row, col = gameBoard.bestMove()
+#     whiteMoveList.append([row, col])
+#     gameBoard.placeSelf(row, col)
+#    # gameBoard.placeEnemy(i,i)
+#
+#     gameBoard.printBoard()
+# print(whiteMoveList)
+# print ('black:', gameBoard.boardInfo()[0].__len__(), "white:" ,gameBoard.boardInfo()[1].__len__(), "empty:",gameBoard.boardInfo()[2].__len__())
 
 '''so we still need to: 
 add in opponent score calculation, 
